@@ -7,6 +7,9 @@ Original upstream:
 
 - Repository: <https://github.com/milla-jovovich/mempalace>
 - License: MIT
+- Upstream source baseline used here: original `main` branch source version
+  `3.0.14`
+- Original repository's latest visible GitHub Release: `v3.0.0`
 
 This fork keeps the upstream license and extends the codebase with:
 

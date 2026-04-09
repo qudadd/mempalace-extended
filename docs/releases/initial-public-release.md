@@ -72,6 +72,9 @@ This repository remains an extension of the original MemPalace project by
 `milla-jovovich` and contributors.
 
 - Original repository: <https://github.com/milla-jovovich/mempalace>
+- Upstream source baseline used for this extension: original `main` branch
+  source version `3.0.14`
+- Original repository's latest visible GitHub Release: `v3.0.0`
 - License: MIT
 
 See `NOTICE.md` for attribution details.

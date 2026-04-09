@@ -27,11 +27,26 @@ This repository is based on the original MemPalace project by
 
 - Original repository: <https://github.com/milla-jovovich/mempalace>
 - Original license: MIT
+- Upstream source baseline used for this extension: original `main` branch
+  source version `3.0.14`
+- Original repository's latest visible GitHub Release: `v3.0.0`
 - Extension status: this repository adds document ingestion, image asset
   handling, MCP multimodal responses, and folder watching on top of the
   original project structure
 
 See [NOTICE.md](NOTICE.md) and [LICENSE](LICENSE).
+
+### Upstream Baseline Note
+
+This extension was prepared from the upstream source state where
+`mempalace/version.py` reported `3.0.14`.
+
+That is different from the original repository's latest visible GitHub Release
+tag, which is currently `v3.0.0`.
+
+For provenance, the most accurate short description is:
+
+`based on original MemPalace main-branch source version 3.0.14`
 
 ## What This Version Focuses On
 
