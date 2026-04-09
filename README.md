@@ -1,6 +1,6 @@
 # MemPalace Extended
 
-Suggested repository name: `mempalace-extended`
+Repository name: `mempalace-extended`
 
 MemPalace Extended is a GitHub-ready extension of the original
 [MemPalace](https://github.com/milla-jovovich/mempalace) project.
@@ -108,7 +108,7 @@ Built-in normalization handles:
 Python `3.11` is the safest target on Windows.
 
 ```powershell
-git clone https://github.com/<your-account>/mempalace-extended.git
+git clone https://github.com/qudadd/mempalace-extended.git
 cd mempalace-extended
 
 conda create -n mempalace python=3.11 -y
@@ -418,11 +418,11 @@ If you publish this fork on GitHub:
 - keep the attribution section in this README
 - do not claim the original MemPalace codebase as entirely new work
 
-Before publishing a package or release artifact, update:
+Before publishing a package or release artifact, review:
 
 - `project.urls` in [pyproject.toml](pyproject.toml)
 - `authors` in [pyproject.toml](pyproject.toml) if needed
-- repository name and screenshots for your own distribution
+- repository visibility, description, and screenshots in GitHub settings
 
 ## License
 
