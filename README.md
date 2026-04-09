@@ -2,6 +2,12 @@
 
 Repository name: `mempalace-extended`
 
+[![Python](https://img.shields.io/badge/python-%3E%3D3.9-blue)](pyproject.toml)
+[![Windows](https://img.shields.io/badge/windows-recommended%203.11-0A7CFF)](#runtime-environment)
+[![CI](https://img.shields.io/badge/CI-3.9%20%7C%203.11%20%7C%203.13-brightgreen)](.github/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![MCP](https://img.shields.io/badge/MCP-stdio-orange)](#mcp-integration)
+
 MemPalace Extended is a GitHub-ready extension of the original
 [MemPalace](https://github.com/milla-jovovich/mempalace) project.
 It keeps the original local-first memory workflow and adds:
@@ -101,11 +107,93 @@ Built-in normalization handles:
 - ChatGPT conversations JSON
 - Slack exports
 
+## Runtime Environment
+
+### Compatibility at a glance
+
+| Target | Python | Status | Notes |
+| --- | --- | --- | --- |
+| Windows local use | `3.11` | recommended | best default for conda or `uv` |
+| Windows local use | `3.10` or `3.12` | supported with caution | often workable, but not the primary local baseline |
+| Windows local use | `3.13` or `3.14` | not recommended | may require native builds in the `chromadb` dependency chain |
+| Linux or macOS | `3.9`, `3.11`, `3.13` | CI-validated | current GitHub Actions matrix runs on Ubuntu |
+
+### Recommended baseline
+
+- operating system: Windows 10 or Windows 11
+- shell: PowerShell or Windows Terminal
+- Python: `3.11`
+- environment manager: `conda` or `uv`
+- storage: local SSD with enough space for the palace, image assets, and embedding cache
+- MCP client: a client that supports `stdio` MCP servers and tool calling
+
+### Supported Python range
+
+The package metadata currently declares `Python >= 3.9`, and the current CI
+matrix exercises `3.9`, `3.11`, and `3.13` on Ubuntu.
+
+For practical local use, this fork is best treated as:
+
+- recommended: `3.11`
+- practical target range: `3.9` to `3.13`, depending on platform
+- not recommended on Windows: `3.13` and `3.14` unless you are prepared to
+  build native dependencies locally
+
+Reason: the `chromadb` dependency chain may pull native build steps on newer
+Windows Python versions.
+
+### Tested environment
+
+This extension has been exercised in the following setup:
+
+| Item | Value |
+| --- | --- |
+| OS | Windows 11 |
+| Shell | PowerShell |
+| Python | 3.11.15 in a conda environment |
+| Environment manager | Anaconda / conda |
+| Install mode | `pip install -e .` and `uv sync --python 3.11` |
+| MCP client | Cherry Studio |
+| Storage layout | palace on a secondary drive, embedding cache on a configurable local path |
+
+Current GitHub Actions coverage:
+
+| OS | Python |
+| --- | --- |
+| Ubuntu | `3.9`, `3.11`, `3.13` |
+
+### Runtime dependencies
+
+Core dependencies used by this fork:
+
+- `chromadb`
+- `pyyaml`
+- `pypdf`
+- `python-docx`
+- `openpyxl`
+
+Optional development dependencies:
+
+- `pytest`
+- `pytest-cov`
+- `ruff`
+- `psutil`
+
+### MCP client requirements
+
+For the multimodal MCP path to work well, the client should support:
+
+- `stdio` MCP servers
+- tool calling
+- rendering mixed `text + image` tool responses if you want image output
+
+Cherry Studio is the reference client currently documented in this repository.
+
 ## Installation
 
-### Recommended on Windows
+### Windows with conda (`3.11` recommended)
 
-Python `3.11` is the safest target on Windows.
+This is the safest Windows path for most users.
 
 ```powershell
 git clone https://github.com/qudadd/mempalace-extended.git
@@ -117,17 +205,83 @@ conda activate mempalace
 pip install -e .
 ```
 
-If you prefer `uv`:
+### Windows with conda (`3.10` or `3.12`)
+
+If you already standardize on one of these versions, use the same flow:
+
+```powershell
+git clone https://github.com/qudadd/mempalace-extended.git
+cd mempalace-extended
+
+conda create -n mempalace python=3.10 -y
+conda activate mempalace
+pip install -e .
+```
+
+or:
+
+```powershell
+conda create -n mempalace python=3.12 -y
+conda activate mempalace
+pip install -e .
+```
+
+If installation on Windows fails with native dependency errors, switch back to
+`3.11` before troubleshooting anything else.
+
+### Windows with `uv`
+
+`uv` can resolve the Python version per machine:
 
 ```powershell
 uv sync --python 3.11
 ```
 
-Optional Windows launcher:
+Alternative examples:
+
+```powershell
+uv sync --python 3.10
+uv sync --python 3.12
+```
+
+### Linux or macOS with `venv`
+
+Example with Python `3.11`:
+
+```bash
+git clone https://github.com/qudadd/mempalace-extended.git
+cd mempalace-extended
+
+python3.11 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+```
+
+Other supported CI-backed examples:
+
+```bash
+python3.9 -m venv .venv
+python3.13 -m venv .venv
+```
+
+### Windows launcher scripts
 
 - [`start_mempalace.bat`](start_mempalace.bat) is included as a generic template
+- [`mempalace_mcp.bat`](mempalace_mcp.bat) is included as a Windows MCP server launcher
 - override `CONDA_ROOT`, `ENV_NAME`, `PALACE_PATH`, or
   `MEMPALACE_EMBEDDING_CACHE_PATH` if your local setup differs
+
+### Recommended storage placement
+
+If your system drive is small, put the palace on another drive:
+
+```powershell
+$env:MEMPALACE_PALACE_PATH = "D:\MemPalaceData\palace"
+$env:MEMPALACE_EMBEDDING_CACHE_PATH = "D:\MemPalaceData\cache\onnx_models"
+```
+
+You can also persist those values through `~/.mempalace/config.json` or your
+launcher script.
 
 ## Quick Start
 
@@ -214,6 +368,24 @@ mempalace watch stop --all
 - deleted files can be pruned unless `--no-prune-missing` is used
 - watch state is stored in `~/.mempalace/watchers`
 
+### Watch verification notes
+
+This extension has been smoke-tested with the following sequence on Windows:
+
+- `watch start`
+- initial sync reaches `Sync: ok`
+- add one new file into the watched folder
+- `watch status` reports `Change: 1 file(s)`
+- `watch stop` cleanly stops the worker
+
+Practical caveat:
+
+- if the embedding cache is empty, the first sync may need to download the
+  ONNX embedding model before mining can finish
+- on slow or restricted networks, pre-warm the cache by running one normal
+  `mempalace mine <dir>` first, or point
+  `MEMPALACE_EMBEDDING_CACHE_PATH` to a populated cache location
+
 ## Storage Layout
 
 Global defaults are managed by `~/.mempalace/config.json`.
@@ -241,6 +413,9 @@ $env:MEMPALACE_EMBEDDING_CACHE_PATH = "D:\MemPalaceData\cache\onnx_models"
 ## MCP Integration
 
 This extension is designed to work as a local `stdio` MCP server.
+
+Examples in this section use Windows paths for illustration only. Replace them
+with paths from your own machine.
 
 Server entry:
 
@@ -300,6 +475,30 @@ Optional environment variables:
 - `MEMPALACE_EMBEDDING_CACHE_PATH`
 - `PYTHONIOENCODING=utf-8`
 
+### Machine-specific command paths
+
+The sample path `D:\anaconda\envs\mempalace\python.exe` is only an example.
+It is not portable across machines.
+
+For real deployments, use one of these approaches:
+
+1. Point the MCP client at the Python executable inside that machine's active
+   environment.
+2. On Windows, point the client at the repo-local
+   [`mempalace_mcp.bat`](mempalace_mcp.bat) wrapper.
+3. Use environment variables such as `PALACE_PATH`, `ENV_NAME`, and
+   `CONDA_ROOT` to adapt the wrapper script without editing the repository.
+
+The included `mempalace_mcp.bat` script is the portable Windows option in this
+fork. It auto-detects common Conda installation locations and uses the repo's
+own directory as the working directory.
+
+You can verify the wrapper before wiring it into an MCP client:
+
+```powershell
+mempalace_mcp.bat --check
+```
+
 ### Cherry Studio configuration
 
 Cherry Studio works well with this extension when configured as a manual
@@ -321,6 +520,19 @@ Recommended setup:
   `--palace`
   `D:\MemPalaceData\palace`
 
+Portable Windows option:
+
+- Command: `C:\path\to\mempalace-extended\mempalace_mcp.bat`
+- Parameters: leave empty
+
+Optional variables for the wrapper:
+
+```text
+ENV_NAME=mempalace
+PALACE_PATH=D:\MemPalaceData\palace
+MEMPALACE_EMBEDDING_CACHE_PATH=D:\MemPalaceData\cache\onnx_models
+```
+
 Optional environment variables:
 
 ```text
@@ -339,17 +551,21 @@ PYTHONIOENCODING=utf-8
 Example prompts:
 
 ```text
-Call mempalace_status first, then summarize the current palace.
+Use mempalace_status first, then summarize the current palace structure and total drawer count.
 ```
 
 ```text
-Use mempalace_search to find "loop gain" in wing "no9_monitoring_review".
-Return the source file names and the most relevant passages.
+Use mempalace_search to find "authentication flow" in wing "my_project".
+Return the most relevant passages together with source file names.
 ```
 
 ```text
-Use mempalace_get_asset to fetch "Figure 2" from wing "no9_monitoring_review".
-Return the text summary and the image together.
+Use mempalace_search to find "meeting notes" across the whole palace and group the results by source file.
+```
+
+```text
+Use mempalace_get_asset to fetch "Figure 2" from wing "research_notes".
+Return the related text context together with the image.
 ```
 
 ### MCP behavior notes
