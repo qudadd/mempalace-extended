@@ -183,7 +183,9 @@ def cmd_watch(args):
             sys.exit(1)
 
         if args.mode == "projects":
-            has_config = any((watch_dir / name).exists() for name in ("mempalace.yaml", "mempal.yaml"))
+            has_config = any(
+                (watch_dir / name).exists() for name in ("mempalace.yaml", "mempal.yaml")
+            )
             if not has_config:
                 print(f"\n  No mempalace.yaml found in {watch_dir}")
                 print("  Run: mempalace init <dir> first, then start the watch.")

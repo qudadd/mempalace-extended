@@ -17,8 +17,9 @@ Tools (write):
   mempalace_delete_drawer   — remove a drawer by ID
 """
 
+from __future__ import annotations
+
 import argparse
-import base64
 import os
 import sys
 import json
@@ -32,7 +33,7 @@ from .config import MempalaceConfig
 from .version import __version__
 from .searcher import search_memories
 from .palace_graph import traverse, find_tunnels, graph_stats
-from .asset_store import IMAGE_EXTENSIONS, encode_image_asset, is_image_file
+from .asset_store import encode_image_asset, is_image_file
 from .embeddings import get_embedding_function
 import chromadb
 
@@ -532,7 +533,9 @@ def _match_images(query: str, metas: list, limit: int = 3) -> list:
     return [meta for _, _, meta in scored[:limit]]
 
 
-def _find_related_images(query: str, search_results: dict, wing: str = None, limit: int = 3) -> list:
+def _find_related_images(
+    query: str, search_results: dict, wing: str = None, limit: int = 3
+) -> list:
     col = _get_collection()
     if not col or search_results.get("error"):
         return []
@@ -639,7 +642,7 @@ def _build_image_blocks(images: list) -> list:
 def _render_asset_summary(summary: dict) -> str:
     lines = [f'Image assets for "{summary["query"]}"']
     if summary.get("wing"):
-        lines.append(f'Wing: {summary["wing"]}')
+        lines.append(f"Wing: {summary['wing']}")
     images = summary.get("images", [])
     if not images:
         lines.append("No matching images found.")
@@ -668,12 +671,12 @@ def _render_search_summary(results: dict, images: list) -> str:
     if results.get("error"):
         return json.dumps(results, indent=2, ensure_ascii=False)
 
-    lines = [f'Search query: {results.get("query", "")}']
+    lines = [f"Search query: {results.get('query', '')}"]
     filters = results.get("filters", {})
     if filters.get("wing"):
-        lines.append(f'Wing: {filters["wing"]}')
+        lines.append(f"Wing: {filters['wing']}")
     if filters.get("room"):
-        lines.append(f'Room: {filters["room"]}')
+        lines.append(f"Room: {filters['room']}")
     hits = results.get("results", [])
     lines.append(f"Text results: {len(hits)}")
 
@@ -860,7 +863,10 @@ TOOLS = {
         "input_schema": {
             "type": "object",
             "properties": {
-                "name": {"type": "string", "description": "Image filename, figure reference, or asset query"},
+                "name": {
+                    "type": "string",
+                    "description": "Image filename, figure reference, or asset query",
+                },
                 "wing": {"type": "string", "description": "Filter by wing (optional)"},
                 "limit": {"type": "integer", "description": "Max images to return (default 3)"},
             },

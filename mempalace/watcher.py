@@ -153,9 +153,8 @@ def start_watch(state: dict) -> dict:
             "cwd": state["dir"],
         }
         if os.name == "nt":
-            kwargs["creationflags"] = (
-                getattr(subprocess, "DETACHED_PROCESS", 0)
-                | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+            kwargs["creationflags"] = getattr(subprocess, "DETACHED_PROCESS", 0) | getattr(
+                subprocess, "CREATE_NEW_PROCESS_GROUP", 0
             )
         else:
             kwargs["start_new_session"] = True
@@ -280,7 +279,9 @@ def run_watch(watch_id: str):
             current_snapshot = build_watch_snapshot(state)
             if current_snapshot != previous_snapshot:
                 state["last_change_at"] = _timestamp()
-                state["last_change_count"] = diff_snapshot_counts(previous_snapshot, current_snapshot)
+                state["last_change_count"] = diff_snapshot_counts(
+                    previous_snapshot, current_snapshot
+                )
                 save_watch_state(state)
                 sync_watch_once(state)
                 previous_snapshot = current_snapshot

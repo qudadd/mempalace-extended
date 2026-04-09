@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from docx import Document
 from openpyxl import Workbook
 from pypdf import PdfWriter

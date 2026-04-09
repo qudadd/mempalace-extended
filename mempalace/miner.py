@@ -7,6 +7,8 @@ Routes each file to the right room based on content.
 Stores verbatim chunks as drawers. No summaries. Ever.
 """
 
+from __future__ import annotations
+
 import os
 import sys
 import hashlib
